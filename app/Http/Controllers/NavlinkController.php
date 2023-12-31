@@ -2,65 +2,128 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\NavlinkResource;
 use App\Models\Navlink;
 use App\Http\Requests\StoreNavlinkRequest;
 use App\Http\Requests\UpdateNavlinkRequest;
+use Illuminate\Http\Request;
+use Validator;
 
 class NavlinkController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        return NavlinkResource::collection(Navlink::all());
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(Request $request)
     {
-        //
+        $input = $request->all();
+
+        if (is_null($input)) {
+            return response()->json([
+                'status' => FALSE,
+                'message' => 'All fields required!'
+            ]);
+        }
+
+        $validated = Validator::make($input, [
+            'title' => 'required|string|max:10',
+            'url' => 'required|string|max:255'
+        ]);
+
+        if ($validated->fails()) {
+            return response()->json([
+                'status' => FALSE,
+                'message' => $validated->errors()
+            ]);
+        }
+
+        if (Navlink::create($input)) {
+            // respons berhasil
+            return response()->json([
+                'status' => TRUE,
+                'message' => 'Successfully store new Navlink'
+            ], 201);
+        } else {
+            // respons gagal
+            return response()->json([
+                'status' => FALSE,
+                'message' => 'Failed store Navlink'
+            ], 400);
+        }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreNavlinkRequest $request)
+    public function show($id)
     {
-        //
+        $navlink = Navlink::find($id);
+
+        if (is_null($navlink)) {
+            return response()->json([
+                'status' => FALSE,
+                'message' => 'Data not found'
+            ]);
+        }
+
+        return response()->json([
+            'status' => TRUE,
+            'data' => $navlink
+        ]);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Navlink $navlink)
+    public function update(Request $request, $id)
     {
-        //
+        $input = $request->all();
+        $navlink = Navlink::find($id);
+
+        // default values
+        $input['title'] = $input['title'] ?? $navlink->title;
+        $input['url'] = $input['url'] ?? $navlink->url;
+
+        if (is_null($input)) {
+            return response()->json([
+                'status' => FALSE,
+                'message' => 'Minimum one field required!'
+            ]);
+        }
+
+        $validated = Validator::make($input, [
+            'title' => 'required|string|max:10',
+            'url' => 'required|string|max:255'
+        ]);
+
+        if ($validated->fails()) {
+            return response()->json([
+                'status' => FALSE,
+                'message' => $validated->errors()
+            ]);
+        }
+
+        $navlink->update($input);
+
+        return response()->json([
+            'status' => TRUE,
+            'message' => 'Successfully update Navlink',
+            'data' => $input
+        ], 201);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Navlink $navlink)
+    public function destroy($id) 
     {
-        //
-    }
+        $navlink = Navlink::find($id);
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateNavlinkRequest $request, Navlink $navlink)
-    {
-        //
-    }
+        if (is_null($navlink)) {
+            return response()->json([
+                'status' => FALSE,
+                'message' => 'Navlink not found'
+            ]);
+        }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Navlink $navlink)
-    {
-        //
+        $navlink->delete();
+
+        return response()->json([
+            'status' => TRUE,
+            'message' => "Successfully deleted Navlink"
+        ]);
     }
 }

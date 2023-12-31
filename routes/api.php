@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\IconController;
+use App\Http\Controllers\NavlinkController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -20,3 +21,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::apiResource('/icon', IconController::class);
+Route::apiResource('/navlink', NavlinkController::class);
