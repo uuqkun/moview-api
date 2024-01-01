@@ -18,6 +18,13 @@ class IconController extends Controller
     {
         $input = $request::all();
 
+        if (is_null($input)) {
+            return response()->json([
+                'status' => TRUE,
+                'message' => 'All fields are required!'
+            ]);
+        }
+
         $validasi = Validator::make($input, [
             'title' => 'required|max:255',
             'url' => 'required|image|mimes:jpeg,jpg,png|max:2048',
@@ -44,13 +51,13 @@ class IconController extends Controller
             // respons berhasil
             return response()->json([
                 'status' => TRUE,
-                'msg' => 'Icon Berhasil Disimpan',
+                'msg' => 'Successfully saved icon',
             ], 201);
         } else {
             // respons gagal
             return response()->json([
                 'status' => FALSE,
-                'msg' => 'Icon Gagal Disimpan',
+                'msg' => 'Failed save icon',
             ], 400);
         }
     }
@@ -121,7 +128,7 @@ class IconController extends Controller
 
         return response()->json([
             'status' => TRUE,
-            'message' => "Data berhasil diupdate"
+            'message' => "Updated"
         ]);
     }
 
@@ -147,7 +154,7 @@ class IconController extends Controller
 
         return response()->json([
             'status' => TRUE,
-            'message' => "Icon berhasil diupdate"
+            'message' => "Deleted"
         ]);
     }
 }
